@@ -28,10 +28,13 @@ def webhook():
         elif "день" in text.lower():
             send_message(chat_id, f"Записал: {text}")
         elif text.lower() == "/help":
-            send_message(chat_id, "Доступные команды:
-/start - начать
-/help - помощь
-Напиши 'День 1', 'День 2' и т.д. чтобы вести отчёты.")
+send_message(chat_id, """Доступные команды:
+— День 1
+— Старт
+— #чек
+— /стоп
+— /помощь
+""")
         else:
            send_message(chat_id, """Доступные команды:
 — День 1
