@@ -1,50 +1,64 @@
 import os
-import logging
-from flask import Flask, request
+import json
 import requests
-
-TOKEN = os.environ.get("BOT_TOKEN")
-CHAT_ID_LOG = os.environ.get("LOG_CHAT_ID")  # по желанию: куда слать уведомления
+from flask import Flask, request
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
 
-URL = f"https://api.telegram.org/bot{TOKEN}/"
+TOKEN = os.getenv("BOT_TOKEN")
+API_URL = f"https://api.telegram.org/bot{TOKEN}"
+
+# Память в оперативке — можно заменить на базу
+user_data = {}
 
 def send_message(chat_id, text):
-    data = {"chat_id": chat_id, "text": text}
-    requests.post(URL + "sendMessage", data=data)
+    url = f"{API_URL}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML"
+    }
+    requests.post(url, json=payload)
 
-@app.route(f"/{TOKEN}", methods=["POST"])
+@app.route('/', methods=['POST'])
 def webhook():
     data = request.get_json()
-    logging.info(f"Received: {data}")
+
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
-        text = data["message"].get("text", "")
+        message_text = data["message"].get("text", "").lower()
 
-        if text.lower() in ["/start", "старт"]:
-            send_message(chat_id, "Привет! Веди отчёты по воздержанию и отслеживай прогресс.")
-        elif "день" in text.lower():
-            send_message(chat_id, f"Записал: {text}")
-        elif text.lower() == "/help":
-send_message(chat_id, """Доступные команды:
-— День 1
-— Старт
-— #чек
-— /стоп
-— /помощь
-""")
+        if message_text.startswith("день"):
+            try:
+                day_number = int(message_text.split()[1])
+                user_data[chat_id] = day_number
+                send_message(chat_id, f"✅ День {day_number} сохранён!")
+            except:
+                send_message(chat_id, "⚠️ Напиши так: <code>день 1</code>, <code>день 7</code> и т.д.")
+        
+        elif "сброс" in message_text:
+            user_data[chat_id] = 0
+            send_message(chat_id, "🔄 Счётчик сброшен. Начни с <code>день 1</code>")
+
+        elif "статистика" in message_text:
+            day = user_data.get(chat_id, 0)
+            send_message(chat_id, f"📊 Сейчас у тебя <b>{day} день(ей)</b>")
+
+        elif "помощь" in message_text or "команды" in message_text:
+            send_message(chat_id, """📘 <b>Доступные команды:</b>
+
+• <code>день 1</code> — сохранить день
+• <code>статистика</code> — показать прогресс
+• <code>сброс</code> — обнулить счётчик
+• <code>помощь</code> — справка
+
+Бот работает в режиме учёта прогресса по дням 💪""")
+
         else:
-           send_message(chat_id, """Доступные команды:
-— День 1
-— Старт
-— #чек
-— /стоп
-— /помощь
-""")
+            send_message(chat_id, "🤖 Напиши <code>помощь</code>, чтобы увидеть команды.")
+
     return "ok"
 
-@app.route("/", methods=["GET"])
+@app.route('/')
 def index():
-    return "Бот работает!"
+    return "Бот работает 💻"
