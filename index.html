@@ -3,55 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YogaFlow</title>
+    <title>Freelance Master 3.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap');
+        :root {
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #9CA3AF;
+            --accent: #1F2937;
+            --accent-green: #10B981;
+            --accent-red: #EF4444;
+            --accent-grey: #D1D5DB;
+            --input-bg: #F9FAFB;
+            --border: #E5E7EB;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #f0f8ff, #f9e6ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
             min-height: 100vh;
-            color: #333;
         }
-        .card {
-            background: #ffffffcc;
+
+        .app-card {
+            background: var(--bg-card);
+            width: 100%; max-width: 480px;
+            padding: 30px;
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        /* ТАБЫ */
+        .tabs {
+            display: flex; background: var(--input-bg);
+            padding: 4px; border-radius: 16px;
+            margin-bottom: 25px; border: 1px solid var(--border);
+        }
+        .tab {
+            flex: 1; text-align: center; padding: 12px;
+            font-size: 13px; font-weight: 700; color: var(--text-muted);
+            cursor: pointer; border-radius: 12px; transition: 0.2s;
+        }
+        .tab.active {
+            background: #fff; color: var(--text-main);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* ГРАФИК */
+        .chart-wrapper {
+            display: flex; justify-content: center; margin-bottom: 25px;
+        }
+        .donut-chart {
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex; justify-content: center; align-items: center;
+            transition: background 0.5s ease;
+        }
+        .donut-inner {
+            width: 100px; height: 100px;
+            background: var(--bg-card);
+            border-radius: 50%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .chart-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; }
+        .chart-value { font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono'; margin-top: 2px; }
+
+        /* ПОЛЯ ВВОДА */
+        .section-title {
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            color: var(--text-muted); letter-spacing: 1px;
+            margin-bottom: 10px; margin-top: 20px;
+        }
+        .section-title:first-child { margin-top: 0; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-label {
+            display: flex; justify-content: space-between;
+            font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;
+        }
+        
+        .money-input {
+            width: 100%; padding: 14px;
+            background: var(--input-bg);
+            border: 2px solid var(--border);
             border-radius: 12px;
-            padding: 2rem 3rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px; font-weight: 600;
+            color: var(--text-main); transition: 0.2s;
         }
-        h1 {
-            margin-top: 0;
-            font-weight: 500;
-            color: #5a189a;
+        .money-input:focus { border-color: var(--accent); background: #fff; }
+
+        /* ИНДИКАТОРЫ ЦВЕТА */
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .dot-red { background: var(--accent-red); }
+        .dot-green { background: var(--accent-green); }
+
+        /* СЛАЙДЕРЫ */
+        .slider-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 5px;}
+        input[type=range] { 
+            -webkit-appearance: none; width: 100%; height: 4px; 
+            background: var(--border); border-radius: 10px; cursor: pointer; margin-bottom: 15px;
         }
-        p {
-            font-weight: 300;
-            margin-bottom: 2rem;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 18px; width: 18px;
+            border-radius: 50%; background: var(--accent); margin-top: -7px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        button {
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            background: #5a189a;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.3s;
+
+        /* РЕЗУЛЬТАТ */
+        .result-box {
+            margin-top: 20px; padding-top: 20px;
+            border-top: 2px dashed var(--border); text-align: center;
         }
-        button:hover {
-            background: #7b2cbf;
+        .res-label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+        .res-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 48px; 
+            font-weight: 700; color: var(--text-main); letter-spacing: -2px; line-height: 1.1;
         }
+        .res-sub { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
+        .currency { font-size: 20px; color: var(--text-muted); }
+
+        /* СКРЫТИЕ БЛОКОВ */
+        .mode-block { display: none; }
+        .mode-block.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>YogaFlow</h1>
-        <p>Приложение для отслеживания ежедневной практики.</p>
-        <button>Начать</button>
+
+    <div class="app-card">
+        <div class="tabs">
+            <div class="tab active" onclick="switchMode('target')">1. Узнать цену часа</div>
+            <div class="tab" onclick="switchMode('check')">2. Проверить ставку</div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div class="donut-chart" id="chart">
+                <div class="donut-inner">
+                    <span class="chart-label">Налог</span>
+                    <span class="chart-value" id="taxSum">0₽</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">График и Налог</div>
+        <div class="slider-row"><span>Часов в день</span><span id="hVal">4</span></div>
+        <input type="range" id="hours" min="1" max="14" value="4">
+        
+        <div class="slider-row"><span>Дней в неделю</span><span id="dVal">5</span></div>
+        <input type="range" id="days" min="1" max="7" value="5">
+        
+        <div class="slider-row"><span>Налог (СМЗ/ИП)</span><span><span id="tVal">6</span>%</span></div>
+        <input type="range" id="tax" min="0" max="30" value="6">
+
+        <hr style="border: 0; border-top: 1px solid #E5E7EB; margin: 20px 0;">
+
+        <div id="mode-target" class="mode-block active">
+            <div class="section-title">Сколько нужно денег?</div>
+            
+            <div class="input-group">
+                <label class="input-label"><div><span class="dot dot-red"></span>Выживание (Еда, Аренда)</div></label>
+                <input type="text" class="money-input math-field" id="survInput" placeholder="0">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label"><div><span class="dot dot-green"></span>Мечты (Отложить)</div></label>
+                <input type="text" class="money-input math-field" id="dreamInput" placeholder="0">
+            </div>
+
+            <div class="result-box">
+                <div class="res-label">Твой час должен стоить</div>
+                <div class="res-value"><span id="targetRate">0</span><span class="currency">₽</span></div>
+                <div class="res-sub">Чтобы покрыть все расходы и налог</div>
+            </div>
+        </div>
+
+        <div id="mode-check" class="mode-block">
+            <div class="section-title">Твоя текущая ставка</div>
+            
+            <div class="input-group">
+                <label class="input-label">Цена за час</label>
+                <input type="text" class="money-input math-field" id="myRateInput" placeholder="2000" value="2 000">
+            </div>
+
+            <div class="result-box" style="border:none; padding-top:0; margin-top:10px;">
+                <div class="res-label">Ты заработаешь в месяц (чистыми)</div>
+                <div class="res-value" style="color:#3B82F6"><span id="totalIncome">0</span><span class="currency">₽</span></div>
+            </div>
+
+            <div style="background: #F9FAFB; padding: 15px; border-radius: 16px; margin-top: 15px;">
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px;">
+                    <span>Минус выживание:</span>
+                    <span style="font-weight:700; color:#EF4444" id="survDeduction">0₽</span>
+                </div>
+                <hr style="border:0; border-top:1px dashed #D1D5DB; margin:8px 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px; text-transform:uppercase; color:#9CA3AF">Остаток на мечту:</span>
+                    <span style="font-weight:800; font-size:20px; font-family:'JetBrains Mono'" id="leftoverMoney">0₽</span>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <script>
+        // --- СОСТОЯНИЕ ---
+        let mode = 'target'; // target | check
+
+        // --- ЭЛЕМЕНТЫ ---
+        const el = (id) => document.getElementById(id);
+        const els = {
+            h: el('hours'), d: el('days'), t: el('tax'),
+            hVal: el('hVal'), dVal: el('dVal'), tVal: el('tVal'),
+            
+            // Mode 1 Inputs
+            surv: el('survInput'), dream: el('dreamInput'), targetRate: el('targetRate'),
+            
+            // Mode 2 Inputs
+            myRate: el('myRateInput'), totalInc: el('totalIncome'), 
+            survDed: el('survDeduction'), left: el('leftoverMoney'),
+            
+            // Chart
+            chart: el('chart'), taxSum: el('taxSum')
+        };
+
+        // --- УТИЛИТЫ ---
+        const fmt = (n) => n.toLocaleString('ru-RU');
+        const parse = (s) => parseFloat(s?.toString().replace(/[^\d.]/g, '')) || 0;
+
+        // --- ЛОГИКА ---
+        function calculate() {
+            const h = parseInt(els.h.value);
+            const d = parseInt(els.h.value); // ОШИБКА БЫЛА ТУТ, ИСПРАВИМ НИЖЕ
+            const dReal = parseInt(els.d.value);
+            const t = parseInt(els.t.value);
+
+            els.hVal.innerText = h; els.dVal.innerText = dReal; els.tVal.innerText = t;
+            
+            const hoursPerMonth = h * dReal * 4.33;
+
+            // 1. Считаем режим "Узнать Цену" (Target)
+            const sCost = parse(els.surv.value); // Выживание
+            const dCost = parse(els.dream.value); // Мечты
+            
+            const netNeeded = sCost + dCost;
+            const grossNeeded = netNeeded / (1 - (t/100));
+            const calcRate = Math.ceil(grossNeeded / hoursPerMonth) || 0;
+            const taxAmount1 = grossNeeded - netNeeded;
+
+            els.targetRate.innerText = fmt(calcRate);
+
+            // 2. Считаем режим "Проверить Ставку" (Check)
+            const myRate = parse(els.myRate.value);
+            const grossIncome = myRate * hoursPerMonth;
+            const netIncome = Math.floor(grossIncome * (1 - (t/100)));
+            const taxAmount2 = grossIncome - netIncome;
+            
+            els.totalInc.innerText = fmt(netIncome);
+            els.survDed.innerText = "-" + fmt(sCost) + "₽";
+            
+            const leftover = netIncome - sCost;
+            els.left.innerText = fmt(leftover) + "₽";
+            els.left.style.color = leftover >= 0 ? '#10B981' : '#EF4444'; // Зеленый или Красный
+
+            // 3. Рисуем график (Зависит от активного режима)
+            let pSurv, pDream, pTax, total;
+            
+            if (mode === 'target') {
+                total = grossNeeded;
+                if (total === 0) { resetChart(); return; }
+                pSurv = (sCost / total) * 100;
+                pDream = (dCost / total) * 100;
+                pTax = (taxAmount1 / total) * 100;
+                els.taxSum.innerText = fmt(Math.round(taxAmount1)) + '₽';
+            } else {
+                total = grossIncome;
+                if (total === 0) { resetChart(); return; }
+                // В режиме проверки: Красный = Выживание (из 1 таба), Зеленый = Остаток, Серый = Налог
+                let safeSurv = sCost > netIncome ? netIncome : sCost; // Чтобы график не ломался
+                let safeLeft = leftover < 0 ? 0 : leftover;
+                
+                pSurv = (safeSurv / total) * 100;
+                pDream = (safeLeft / total) * 100; // Это остаток
+                pTax = (taxAmount2 / total) * 100;
+                els.taxSum.innerText = fmt(Math.round(taxAmount2)) + '₽';
+            }
+
+            els.chart.style.background = `conic-gradient(
+                #EF4444 0% ${pSurv}%, 
+                #10B981 ${pSurv}% ${pSurv + pDream}%, 
+                #D1D5DB ${pSurv + pDream}% 100%
+            )`;
+            
+            saveState();
+        }
+
+        function resetChart() {
+            els.chart.style.background = '#eee';
+            els.taxSum.innerText = '0₽';
+        }
+
+        // --- ПЕРЕКЛЮЧЕНИЕ ТАБОВ ---
+        window.switchMode = (m) => {
+            mode = m;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.mode-block').forEach(b => b.classList.remove('active'));
+            
+            if (m === 'target') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                el('mode-target').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                el('mode-check').classList.add('active');
+            }
+            calculate();
+        };
+
+        // --- МАТЕМАТИКА В ПОЛЯХ ---
+        document.querySelectorAll('.math-field').forEach(inp => {
+            inp.addEventListener('blur', () => {
+                try {
+                    let v = inp.value.replace(/[^\d+\-*/.]/g, '');
+                    if (v) inp.value = fmt(new Function('return ' + v)());
+                } catch(e){}
+                calculate();
+            });
+            inp.addEventListener('keydown', e => { if(e.key==='Enter') inp.blur(); });
+        });
+
+        // --- СОХРАНЕНИЕ ---
+        function saveState() {
+            const d = {
+                h: els.h.value, d: els.d.value, t: els.t.value,
+                s: els.surv.value, dr: els.dream.value, mr: els.myRate.value,
+                m: mode
+            };
+            localStorage.setItem('fc_v4', JSON.stringify(d));
+        }
+
+        function loadState() {
+            const s = JSON.parse(localStorage.getItem('fc_v4'));
+            if(s) {
+                els.h.value=s.h; els.d.value=s.d; els.t.value=s.t;
+                els.surv.value=s.s; els.dream.value=s.dr; els.myRate.value=s.mr;
+                if(s.m) switchMode(s.m);
+            }
+        }
+
+        // SLIDERS LISTENERS
+        [els.h, els.d, els.t].forEach(x => x.addEventListener('input', calculate));
+
+        // INIT
+        loadState();
+        calculate();
+
+    </script>
 </body>
 </html>
