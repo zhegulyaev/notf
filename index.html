@@ -1,246 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Для Кристины ♡</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@500;600;700&display=swap');
-
-:root{
-  --pink:#ff4f9a;
-  --hot:#ff2f82;
-  --soft:#ffd8e9;
-  --cream:#fff8fb;
-  --ink:#4b2037;
-  --muted:#9c6b82;
-  --white:#fff;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:"DM Sans",sans-serif;
-  color:var(--ink);
-  background:
-    radial-gradient(circle at 10% 10%,#ffd2e7 0 10%,transparent 28%),
-    radial-gradient(circle at 90% 20%,#ffe6f2 0 12%,transparent 30%),
-    linear-gradient(135deg,#fff7fb,#ffeaf4 50%,#fff);
-  overflow-x:hidden;
-}
-body:before{
-  content:"";
-  position:fixed; inset:0; pointer-events:none; opacity:.35;
-  background-image:radial-gradient(#ff6ca8 0.7px,transparent .7px);
-  background-size:20px 20px;
-}
-button{font:inherit}
-.page{position:relative;min-height:100vh;display:grid;place-items:center;padding:34px 18px}
-.card{
-  width:min(920px,100%);
-  min-height:700px;
-  position:relative;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.9);
-  border-radius:38px;
-  background:rgba(255,255,255,.72);
-  box-shadow:0 30px 90px rgba(190,62,116,.18), inset 0 1px 0 white;
-  backdrop-filter:blur(18px);
-}
-.topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:24px 28px;position:relative;z-index:4
-}
-.logo{font-weight:800;letter-spacing:.04em;color:var(--hot)}
-.pill{
-  border:1px solid #ffc4dc;background:#fff6fa;color:#b54a78;
-  border-radius:99px;padding:9px 14px;font-size:12px;font-weight:700
-}
-.hero{
-  min-height:610px;display:flex;flex-direction:column;justify-content:center;align-items:center;
-  text-align:center;padding:30px 28px 70px;position:relative;z-index:2
-}
-.eyebrow{
-  color:var(--hot);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  margin-bottom:18px;opacity:0;animation:rise .8s .1s forwards
-}
-h1{
-  font-family:"Playfair Display",serif;
-  font-size:clamp(48px,8vw,92px);line-height:.92;margin:0;
-  letter-spacing:-.055em;color:#64223f;
-  opacity:0;animation:rise .9s .2s forwards
-}
-h1 em{color:var(--pink);font-weight:600}
-.sub{
-  max-width:590px;margin:25px auto 0;font-size:18px;line-height:1.65;color:#815269;
-  opacity:0;animation:rise .9s .35s forwards
-}
-.cta-row{
-  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px;
-  opacity:0;animation:rise .9s .5s forwards
-}
-.btn{
-  border:0;border-radius:999px;padding:15px 24px;font-weight:800;cursor:pointer;
-  transition:.25s transform,.25s box-shadow,.25s background;
-}
-.btn-main{
-  color:white;background:linear-gradient(135deg,#ff67aa,#ff2f82);
-  box-shadow:0 12px 30px rgba(255,47,130,.28)
-}
-.btn-main:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 17px 36px rgba(255,47,130,.34)}
-.btn-light{color:#a53c6c;background:#fff;border:1px solid #ffd0e2}
-.btn-light:hover{transform:translateY(-3px);background:#fff5fa}
-.heart{
-  width:106px;height:106px;margin-bottom:22px;display:grid;place-items:center;
-  border-radius:50%;background:linear-gradient(145deg,#fff,#ffe2ee);
-  box-shadow:0 20px 45px rgba(255,79,154,.18);
-  font-size:47px;animation:float 3.5s ease-in-out infinite;
-}
-.floating{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.spark{
-  position:absolute;color:#ff62a5;font-size:20px;opacity:.55;
-  animation:drift linear infinite
-}
-.s1{left:7%;top:24%;animation-duration:7s}.s2{right:8%;top:35%;animation-duration:9s}
-.s3{left:15%;bottom:15%;animation-duration:8s}.s4{right:17%;bottom:22%;animation-duration:6s}
-.bubble{
-  position:absolute;border-radius:50%;background:linear-gradient(145deg,#fff,#ffd7e9);
-  box-shadow:0 15px 45px rgba(220,74,132,.13);opacity:.75
-}
-.b1{width:150px;height:150px;left:-70px;top:150px}.b2{width:190px;height:190px;right:-100px;bottom:80px}
-.note{
-  position:absolute;right:27px;bottom:24px;z-index:4;font-size:11px;color:#b47a93
-}
-.modal{
-  position:fixed;inset:0;background:rgba(68,20,45,.28);backdrop-filter:blur(8px);
-  display:none;place-items:center;padding:20px;z-index:20
-}
-.modal.show{display:grid;animation:fade .25s}
-.modal-box{
-  width:min(520px,100%);background:#fff;border-radius:30px;padding:32px;text-align:center;
-  box-shadow:0 30px 100px rgba(60,15,40,.3);position:relative;animation:pop .35s
-}
-.modal-box h2{font-family:"Playfair Display";font-size:38px;margin:5px 0 12px}
-.modal-box p{color:#8d5c73;line-height:1.65;margin-bottom:24px}
-.close{position:absolute;right:17px;top:15px;border:0;background:#fff0f6;color:#b33e70;width:34px;height:34px;border-radius:50%;cursor:pointer}
-.choice{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.confetti{position:fixed;z-index:50;width:8px;height:13px;top:-20px;pointer-events:none;animation:confetti 1.5s ease-in forwards}
-.toast{
-  position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);
-  background:#5b2340;color:white;padding:13px 18px;border-radius:99px;z-index:60;
-  opacity:0;pointer-events:none;transition:.3s;box-shadow:0 12px 30px rgba(50,10,30,.2)
-}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-11px) rotate(3deg)}}
-@keyframes drift{0%{transform:translateY(20px) rotate(0);opacity:0}20%{opacity:.6}80%{opacity:.5}100%{transform:translateY(-80px) rotate(180deg);opacity:0}}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes pop{from{transform:scale(.92) translateY(12px);opacity:0}to{transform:none;opacity:1}}
-@keyframes confetti{to{transform:translate(var(--x),110vh) rotate(720deg);opacity:0}}
-@media(max-width:600px){
-  .page{padding:12px}
-  .card{border-radius:28px;min-height:calc(100vh - 24px)}
-  .topbar{padding:20px}
-  .hero{min-height:calc(100vh - 120px);padding:30px 20px 70px}
-  h1{font-size:56px}
-  .sub{font-size:16px}
-  .heart{width:86px;height:86px;font-size:38px}
-  .note{right:20px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Трекер привычек — Октябрь 2026</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="page">
-  <main class="card">
-    <div class="floating" aria-hidden="true">
-      <span class="spark s1">✦</span><span class="spark s2">♡</span>
-      <span class="spark s3">✧</span><span class="spark s4">♡</span>
-      <span class="bubble b1"></span><span class="bubble b2"></span>
-    </div>
-
-    <div class="topbar">
-      <div class="logo">♡ K.</div>
-      <div class="pill">маленькое предложение</div>
-    </div>
-
-    <section class="hero">
-      <div class="heart">🎀</div>
-      <div class="eyebrow">Кристина, это тебе</div>
-      <h1>Иди мой<br><em>голову</em> ♡</h1>
-      <p class="sub">
-        А потом пойдем во дворик, посидим, погуляем и просто побудем вместе.
-        Без грандиозных планов. Просто хороший вечер.
-      </p>
-
-      <div class="cta-row">
-        <button class="btn btn-main" id="yes">Иду 💗</button>
-        <button class="btn btn-light" id="details">А что по плану?</button>
-      </div>
+  <main class="app">
+    <section id="authView" class="auth">
+      <h1>Трекер привычек</h1>
+      <p>Войди, чтобы сохранять прогресс на всех устройствах.</p>
+      <input id="email" type="email" placeholder="Email" autocomplete="email">
+      <input id="password" type="password" placeholder="Пароль" autocomplete="current-password">
+      <button id="loginBtn" class="primary">Войти</button>
+      <button id="signupBtn" class="secondary">Создать аккаунт</button>
+      <div id="authMsg" class="msg"></div>
     </section>
 
-    <div class="note">сделано с подозрительно большим количеством розового</div>
+    <section id="trackerView" class="hidden">
+      <header class="top">
+        <div>
+          <h1>Октябрь 2026</h1>
+          <p>Тапни на день → отметь результат</p>
+        </div>
+        <button id="logoutBtn" class="logout">Выйти</button>
+      </header>
+
+      <div class="week">
+        <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+      </div>
+      <div id="calendar" class="calendar"></div>
+
+      <section class="day-panel">
+        <h2 id="dayTitle">1 октября</h2>
+        <p class="hint">Галочка означает, что цель за день выполнена</p>
+        <div id="habits"></div>
+
+        <div class="threads-card">
+          <div class="habit-copy">
+            <div class="habit-name">📱 Threads</div>
+            <div class="habit-desc">Лимит: максимум 30 минут</div>
+          </div>
+          <div class="minutes-wrap">
+            <input id="threadsMinutes" type="number" min="0" max="999" placeholder="МИН">
+            <small id="threadsStatus">○ Не отмечено</small>
+          </div>
+        </div>
+
+        <div class="summary">
+          <span id="summaryText">0 из 7 целей выполнено.</span>
+        </div>
+      </section>
+    </section>
   </main>
-</div>
-
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <button class="close" id="close">×</button>
-    <div style="font-size:42px">🌸</div>
-    <h2>План максимально серьезный</h2>
-    <p>
-      1. Помыть голову.<br>
-      2. Собраться.<br>
-      3. Выйти во дворик.<br>
-      4. Посидеть и погулять.<br>
-      5. Сделать вид, что мы вообще-то очень взрослые и организованные.
-    </p>
-    <div class="choice">
-      <button class="btn btn-main" id="modalYes">Звучит идеально ♡</button>
-      <button class="btn btn-light" id="close2">Я подумаю 😌</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">Всё, договорились. 💗</div>
-
-<script>
-const modal=document.getElementById('modal');
-const toast=document.getElementById('toast');
-
-document.getElementById('details').onclick=()=>modal.classList.add('show');
-document.getElementById('close').onclick=()=>modal.classList.remove('show');
-document.getElementById('close2').onclick=()=>modal.classList.remove('show');
-modal.addEventListener('click',e=>{if(e.target===modal) modal.classList.remove('show')});
-
-function celebrate(){
-  modal.classList.remove('show');
-  toast.classList.add('show');
-  for(let i=0;i<55;i++){
-    const el=document.createElement('i');
-    el.className='confetti';
-    el.textContent=['♥','✦','♡','✧','●'][Math.floor(Math.random()*5)];
-    el.style.left=Math.random()*100+'vw';
-    el.style.setProperty('--x',(Math.random()*220-110)+'px');
-    el.style.animationDelay=(Math.random()*.35)+'s';
-    el.style.fontSize=(8+Math.random()*12)+'px';
-    el.style.color=['#ff2f82','#ff70ad','#d83d7a','#ffb2d0','#9b3b69'][Math.floor(Math.random()*5)];
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),2000);
-  }
-  setTimeout(()=>toast.classList.remove('show'),2800);
-}
-document.getElementById('yes').onclick=celebrate;
-document.getElementById('modalYes').onclick=celebrate;
-
-// маленький эффект при движении мыши
-const card=document.querySelector('.card');
-document.addEventListener('mousemove',e=>{
-  const x=(e.clientX/window.innerWidth-.5)*8;
-  const y=(e.clientY/window.innerHeight-.5)*8;
-  card.style.transform=`perspective(1000px) rotateY(${x*.12}deg) rotateX(${-y*.12}deg)`;
-});
-document.addEventListener('mouseleave',()=>card.style.transform='');
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
