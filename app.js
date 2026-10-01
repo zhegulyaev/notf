@@ -1,106 +1,27 @@
-const C = window.APP_CONFIG || {};
-const sb = (C.SUPABASE_URL && C.SUPABASE_ANON_KEY)
-  ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY)
-  : null;
-
-const fields = [
-  ["no_sweets","🍬 Без сладостей","Не ел сладкое"],
-  ["no_coffee","☕ Без кофе","Не пил кофе"],
-  ["no_adult","🔞 Без порно/мастурбации","Ничего не было"],
-  ["exercise","🏃 Зарядка","Сделал зарядку"],
-  ["morning_walk","🌅 Утренняя прогулка","Вышел из дома утром"],
-  ["evening_walk","🌆 Прогулка днём/вечером","Вышел ещё раз днём или вечером"]
-];
-
-let selectedDay = 1;
-let entries = {};
-const key = d => `2026-10-${String(d).padStart(2,"0")}`;
-
-const $ = id => document.getElementById(id);
-const localKey = "habit_tracker_october_2026";
-
-function loadLocal(){
-  try { entries = JSON.parse(localStorage.getItem(localKey) || "{}"); } catch { entries = {}; }
+const C=window.APP_CONFIG||{};
+const sb=(C.SUPABASE_URL&&C.SUPABASE_ANON_KEY)?supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY):null;
+const $=id=>document.getElementById(id), dateKey=d=>`2026-10-${String(d).padStart(2,'0')}`;
+let selectedDay=1, goals=[], entries={}, editing=null;
+function show(id){['authView','trackerView','settingsView'].forEach(x=>$(x).classList.toggle('hidden',x!==id));}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+async function loadAll(){
+ const u=(await sb.auth.getUser()).data.user;
+ let r=await sb.from('user_goals').select('*').eq('user_id',u.id).order('position'); goals=r.data||[];
+ if(!goals.length){const d=[['🍬','Без сладостей','Не ел сладкое'],['☕','Без кофе','Не пил кофе'],['🏃','Зарядка','Сделал зарядку'],['🌅','Утренняя прогулка','Вышел из дома утром'],['🌆','Прогулка днём/вечером','Вышел ещё раз днём или вечером']]; for(let i=0;i<d.length;i++) await sb.from('user_goals').insert({user_id:u.id,emoji:d[i][0],name:d[i][1],description:d[i][2],position:i}); r=await sb.from('user_goals').select('*').eq('user_id',u.id).order('position'); goals=r.data||[];}
+ r=await sb.from('habit_entries').select('*').eq('user_id',u.id); entries={};(r.data||[]).forEach(x=>entries[x.date]=x);
 }
-function saveLocal(){ localStorage.setItem(localKey, JSON.stringify(entries)); }
-
-function showAuth(){ $("authView").classList.remove("hidden"); $("trackerView").classList.add("hidden"); }
-function showTracker(){ $("authView").classList.add("hidden"); $("trackerView").classList.remove("hidden"); }
-
-async function init(){
-  loadLocal();
-  renderCalendar();
-  renderDay();
-  if(!sb){ showAuth(); $("authMsg").textContent="Сначала укажи Supabase URL и anon key в config.js"; return; }
-  const {data:{session}} = await sb.auth.getSession();
-  if(session){ await loadCloud(); showTracker(); } else showAuth();
-  sb.auth.onAuthStateChange(async (_event, session) => {
-    if(session){ await loadCloud(); showTracker(); renderCalendar(); renderDay(); }
-    else showAuth();
-  });
-}
-
-async function loadCloud(){
-  const {data,error}=await sb.from("habit_entries").select("*").order("date");
-  if(error){ console.error(error); return; }
-  entries={};
-  for(const row of data) entries[row.date]=row;
-  saveLocal();
-}
-
-async function saveEntry(){
-  const date=key(selectedDay), e=entries[date] || {date};
-  e.user_id=undefined;
-  const row={date,
-    no_sweets:!!e.no_sweets,no_coffee:!!e.no_coffee,
-    threads_minutes:e.threads_minutes===""||e.threads_minutes==null?null:Number(e.threads_minutes),
-    no_adult:!!e.no_adult,exercise:!!e.exercise,
-    morning_walk:!!e.morning_walk,evening_walk:!!e.evening_walk};
-  entries[date]=row; saveLocal();
-  if(!sb) return;
-  const {data:{user}}=await sb.auth.getUser();
-  if(!user) return;
-  const {error}=await sb.from("habit_entries").upsert({...row,user_id:user.id},{onConflict:"user_id,date"});
-  if(error) console.error(error);
-}
-
-function completedCount(e){
-  if(!e) return 0;
-  let n=fields.filter(([f])=>e[f]).length;
-  if(Number.isFinite(Number(e.threads_minutes)) && Number(e.threads_minutes)<=30) n++;
-  return n;
-}
-function renderCalendar(){
-  const cal=$("calendar"); cal.innerHTML="";
-  const first=new Date(2026,9,1).getDay();
-  const offset=(first+6)%7;
-  for(let i=0;i<offset;i++){ const x=document.createElement("button"); x.className="day empty"; cal.appendChild(x); }
-  for(let d=1;d<=31;d++){
-    const b=document.createElement("button"); b.className="day";
-    const e=entries[key(d)], count=completedCount(e);
-    if(d===selectedDay)b.classList.add("selected");
-    if(count===7)b.classList.add("complete"); else if(count>0)b.classList.add("partial");
-    b.innerHTML=`${d}${count?`<span class="mark">${count}/7</span>`:""}`;
-    b.onclick=()=>{selectedDay=d;renderCalendar();renderDay();};
-    cal.appendChild(b);
-  }
-}
-function renderDay(){
-  $("dayTitle").textContent=`${selectedDay} октября`;
-  const date=key(selectedDay), e=entries[date] || {};
-  $("habits").innerHTML="";
-  for(const [f,name,desc] of fields){
-    const card=document.createElement("div"); card.className="habit-card";
-    card.innerHTML=`<div class="habit-copy"><div class="habit-name">${name}</div><div class="habit-desc">${desc}</div></div><button class="toggle ${e[f]?"on":""}" aria-label="${name}"></button>`;
-    card.querySelector(".toggle").onclick=async()=>{ entries[date]=entries[date]||{date}; entries[date][f]=!entries[date][f]; await saveEntry(); renderCalendar(); renderDay(); };
-    $("habits").appendChild(card);
-  }
-  $("threadsMinutes").value=e.threads_minutes ?? "";
-  $("threadsStatus").textContent=e.threads_minutes==null||e.threads_minutes===""?"○ Не отмечено":(Number(e.threads_minutes)<=30?"✓ Лимит соблюдён":"✕ Лимит превышен");
-  $("summaryText").textContent=`${completedCount(e)} из 7 целей выполнено.`;
-}
-$("threadsMinutes").addEventListener("change",async()=>{ const date=key(selectedDay); entries[date]=entries[date]||{date}; entries[date].threads_minutes=$("threadsMinutes").value===""?null:Number($("threadsMinutes").value); await saveEntry(); renderCalendar(); renderDay(); });
-$("loginBtn").onclick=async()=>{ $("authMsg").textContent=""; const {error}=await sb.auth.signInWithPassword({email:$("email").value,password:$("password").value}); if(error)$("authMsg").textContent=error.message; };
-$("signupBtn").onclick=async()=>{ $("authMsg").textContent=""; const {error}=await sb.auth.signUp({email:$("email").value,password:$("password").value}); $("authMsg").textContent=error?error.message:"Аккаунт создан. Проверь почту, если включено подтверждение email."; };
-$("logoutBtn").onclick=()=>sb?.auth.signOut();
-init();
+function count(e){return goals.filter(g=>e?.goal_values?.[g.id]).length+(e?.threads_minutes!=null&&Number(e.threads_minutes)<=30?1:0)}
+function renderCalendar(){const c=$('calendar');c.innerHTML='';const off=(new Date(2026,9,1).getDay()+6)%7;for(let i=0;i<off;i++){let b=document.createElement('button');b.className='day empty';c.append(b)}for(let d=1;d<=31;d++){let b=document.createElement('button'),n=count(entries[dateKey(d)]);b.className='day'+(d===selectedDay?' selected':'')+(n===goals.length+1?' complete':n?' partial':'');b.innerHTML=`${d}${n?`<span class="mark">${n}/${goals.length+1}</span>`:''}`;b.onclick=()=>{selectedDay=d;render()};c.append(b)}}
+function renderDay(){const e=entries[dateKey(selectedDay)]||{};$('dayTitle').textContent=`${selectedDay} октября`;$('habits').innerHTML='';for(const g of goals){const card=document.createElement('div');card.className='habit-card';card.innerHTML=`<div><div class="habit-name">${g.emoji} ${esc(g.name)}</div><div class="habit-desc">${esc(g.description)}</div></div><button class="toggle ${e.goal_values?.[g.id]?'on':''}"></button>`;card.querySelector('button').onclick=async()=>{const x=entries[dateKey(selectedDay)]||{date:dateKey(selectedDay),goal_values:{}};x.goal_values={...(x.goal_values||{}),[g.id]:!x.goal_values?.[g.id]};await save(x);render()};$('habits').append(card)}$('threadsMinutes').value=e.threads_minutes??'';$('threadsStatus').textContent=e.threads_minutes==null||e.threads_minutes===''?'○ Не отмечено':Number(e.threads_minutes)<=30?'✓ Лимит соблюдён':'✕ Лимит превышен';$('summaryText').textContent=`${count(e)} из ${goals.length+1} целей выполнено.`}
+function render(){renderCalendar();renderDay()}
+async function save(x){const u=(await sb.auth.getUser()).data.user;const row={user_id:u.id,date:x.date,goal_values:x.goal_values||{},threads_minutes:x.threads_minutes===''||x.threads_minutes==null?null:Number(x.threads_minutes)};await sb.from('habit_entries').upsert(row,{onConflict:'user_id,date'});entries[x.date]=row}
+function renderGoals(){$('goalList').innerHTML='';goals.forEach(g=>{const r=document.createElement('div');r.className='goal-row';r.innerHTML=`<div class="goal-main"><span class="goal-emoji">${g.emoji}</span><div class="goal-text"><strong>${esc(g.name)}</strong><small>${esc(g.description)}</small></div></div><div class="goal-actions"><button data-e>✏️</button><button data-d>🗑️</button></div>`;r.querySelector('[data-e]').onclick=()=>openEditor(g);r.querySelector('[data-d]').onclick=()=>deleteGoal(g);$('goalList').append(r)})}
+function openEditor(g=null){editing=g;$('editorTitle').textContent=g?'Изменить цель':'Новая цель';$('goalEmoji').value=g?.emoji||'⭐';$('goalName').value=g?.name||'';$('goalDesc').value=g?.description||'';$('goalEditor').classList.remove('hidden')}
+async function deleteGoal(g){if(!confirm(`Удалить цель «${g.name}»?`))return;const u=(await sb.auth.getUser()).data.user;await sb.from('user_goals').delete().eq('id',g.id).eq('user_id',u.id);await loadAll();renderGoals();render()}
+$('saveGoal').onclick=async()=>{const name=$('goalName').value.trim();if(!name)return alert('Введите название');const u=(await sb.auth.getUser()).data.user;const row={user_id:u.id,emoji:$('goalEmoji').value.trim()||'⭐',name,description:$('goalDesc').value.trim(),position:editing?editing.position:goals.length};if(editing)await sb.from('user_goals').update(row).eq('id',editing.id).eq('user_id',u.id);else await sb.from('user_goals').insert(row);$('goalEditor').classList.add('hidden');await loadAll();renderGoals();render()};
+$('addGoalBtn').onclick=()=>openEditor();$('cancelGoal').onclick=()=>$('goalEditor').classList.add('hidden');$('settingsBtn').onclick=()=>{show('settingsView');renderGoals()};$('backBtn').onclick=()=>{show('trackerView');render()};
+$('threadsMinutes').onchange=async()=>{const x=entries[dateKey(selectedDay)]||{date:dateKey(selectedDay),goal_values:{}};x.threads_minutes=$('threadsMinutes').value;await save(x);render()};
+$('loginBtn').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});$('authMsg').textContent=error?.message||''};
+$('signupBtn').onclick=async()=>{const {error}=await sb.auth.signUp({email:$('email').value,password:$('password').value});$('authMsg').textContent=error?.message||'Аккаунт создан. Если подтверждение email выключено, можно сразу войти.'};
+$('logoutBtn').onclick=()=>sb.auth.signOut();
+async function init(){if(!sb){show('authView');$('authMsg').textContent='Проверь config.js';return}const {data:{session}}=await sb.auth.getSession();if(session){await loadAll();show('trackerView');render()}else show('authView');sb.auth.onAuthStateChange(async(_,s)=>{if(s){await loadAll();show('trackerView');render()}else show('authView')})}init();
